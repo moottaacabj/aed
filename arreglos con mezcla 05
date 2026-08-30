@@ -1,0 +1,39 @@
+ACCION mezcla_vectores_05 ES
+AMBIENTE
+    a, b: ARREGLO [1..30] DE real // vectores originales 
+    c: ARREGLO [1..60] DE real // vector creado (60 posiciones para guardar los 30 de a y los 30 de b)
+    i, j, k: entero // índices para a, b y c respectivamente 
+PROCESO
+    // inicializar los índices (significa que empezás mirando a[1] b[1])
+    i := 1 // posición actual del vector a
+    j := 1 // posición actual del vector b
+    k := 1 // posición donde se guarda en el vector c
+    
+    MIENTRAS (i <= 30) Y (j <= 30) HACER // mezcla mientras queden elementos en los dos vectores
+        SI a[i] <= b[j] ENTONCES // se compara el elemento actual de a con el elemento actual de b
+            c[k] := a[i] // si a[i] es menor o igual, se guarda en c
+            i := i + 1 // avanzás en a porque el elemento de b todavía no fue guardado
+        SINO // si b[j] es menor
+            c[k] := b[j] // se guarda el elemento de b en c y se avanza solamente en b
+            j := j + 1
+        FIN_SI
+
+        k := k + 1 // sin importar si copiaste desde a o desde b, acabás de ocupar una posición de c
+    FIN_MIENTRAS
+
+    MIENTRAS i <= 30 HACER  // copiar los elementos que puedan quedar en a
+        c[k] := a[i]
+        i := i + 1
+        k := k + 1
+    FIN_MIENTRAS
+    
+    MIENTRAS j <= 30 HACER // copiar los elementos que puedan quedar en b
+        c[k] := b[j]
+        j := j + 1
+        k := k + 1
+    FIN_MIENTRAS
+
+    PARA k := 1 HASTA 60 HACER // mostrar el vector c
+        ESC(c[k])
+    FIN_PARA
+FIN_ACCION
