@@ -17,7 +17,6 @@ PROCESO
             c[k] := b[j] // se guarda el elemento de b en c y se avanza solamente en b
             j := j + 1
         FIN_SI
-
         k := k + 1 // sin importar si copiaste desde a o desde b, acabás de ocupar una posición de c
     FIN_MIENTRAS
 
