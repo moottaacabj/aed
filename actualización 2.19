@@ -1,0 +1,108 @@
+ACCION actualizacion_2.19 ES
+AMBIENTE
+    remedio = REGISTRO // representa un remedio guardado en el archivo maestro
+        farm: N(4) // código de la farmacia
+        medic: N(6) //código del medicamento
+        cant_act: entero // cantidad disponible actualmente de ese remedio
+        fecha_vence: AN(10) // fecha de vencimiento del remedio
+    FIN_REGISTRO
+
+    movimiento = REGISTRO // modificación que debe aplicarse al maestro (actualización)
+        farm: N(4)
+        medic: N(6)
+        codmov: 1..3 // indica qué operación quiere realizarse
+        cant_rec: entero
+    FIN_REGISTRO
+
+    vencido = REGISTRO
+        medic: N(6)
+        cant_venc: entero
+    FIN_REGISTRO
+
+    fecha_act: AN(10) // la fecha en la que se realiza la actualización
+
+    //declaración de archivos 
+    archmae_rem: ARCHIVO DE remedio ORDENADO POR farm, medic // archivo maestro viejo con todos los remedios existentes
+    archmov: ARCHIVO DE movimiento ORDENADO POR farm, medic // archivo de movimientos que indican qué cambios realizar
+    mae_actual: ARCHIVO DE remedio // archivo de salida, maestro nuevo donde se van grabando los remedios que deben quedar después de aplicar los movimientos
+    archvenc: ARCHIVO DE vencido // archivo de salida, remedios que dejan de fabricarse
+
+    regmae, regsal: remedio
+    regmov: movimiento
+    regvenc: vencido
+
+    PROCEDIMIENTO leer_mae ES // intenta leer el siguiente registro del maestro para no repetir el control de fin de archivo cada vez que avanzamos
+        LEER(archmae_rem, regmae)
+        SI FDA(archmae_rem) ENTONCES
+            //la clave del maestro está formada por farm + medic
+            regmae.farm := HV
+            regmae.medic := HV
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+    PROCEDIMIENTO leer_mov ES
+        LEER(archmov, regmov)
+        SI FDA(archmov) ENTONCES
+            regmov.farm := HV
+            regmov.medic := HV
+        FIN_SI
+    FIN_PROCEDIMIENTO
+PROCESO
+    ABRIR E/(archmae_rem) // estos archivos ya existen y solamente se leen
+    ABRIR E/(archmov)
+    ABRIR S/(mae_actual) // estos archivos se crean para grabar resultados
+    ABRIR S/(archvenc)
+
+    ESC("Ingrese la fecha actual: ") // después se usa para calcular el vencimiento de los remedios nuevos
+    LEER(fecha_act)
+
+    leer_mae // antes de comenzar el MIENTRAS, necesitamos tener un registro disponible de cada archivo para poder compararlos
+    leer_mov
+
+    MIENTRAS (regmae.farm <> HV) O (regmov.farm <> HV) HACER // el ciclo continúa mientras quede información en al menos uno de los dos archivos
+        SI (regmae.farm < regmov.farm) O ((regmae.farm = regmov.farm) Y (regmae.medic < regmov.medic)) ENTONCES  // la clave del maestro es menor: se transfiere
+            regsal := regmae
+            GRABAR(mae_actual, regsal)
+            leer_mae
+        SINO
+            SI (regmae.farm = regmov.farm) Y (regmae.medic = regmov.medic) ENTONCES // las claves son iguales
+                SI regmov.codmov = 1 ENTONCES //el código 1 significa “incorporar un remedio nuevo”, pero las claves son iguales, lo que significa que el remedio ya existe
+                    ESC("ERROR: el remedio ya existe.")
+                    regsal := regmae
+                    GRABAR(mae_actual, regsal)
+                SINO
+                    SI regmov.codmov = 2 ENTONCES  // el remedio deja de fabricarse
+                        regvenc.medic := regmae.medic
+                        regvenc.cant_venc := regmae.cant_act
+                        GRABAR(archvenc, regvenc) // acá no se graba el remedio en mae_actual porque dejó de fabricarse, debe desaparecer del nuevo maestro
+                    SINO // codmov = 3: se recibe nueva cantidad
+                        regmae.cant_act := regmae.cant_act + regmov.cant_rec
+                        regsal := regmae
+                        GRABAR(mae_actual, regsal)
+                    FIN_SI
+                FIN_SI
+                leer_mae
+                leer_mov
+            SINO // la clave del maestro es mayor que la del movimiento
+                SI regmov.codmov = 1 ENTONCES // se incorpora un remedio nuevo
+                    regsal.farm := regmov.farm
+                    regsal.medic := regmov.medic
+                    regsal.cant_act := regmov.cant_rec
+                    regsal.fecha_vence := fecha_act + 30 // la consigna dice que su vencimiento es 30 días después de la fecha actual
+                    GRABAR(mae_actual, regsal)
+                SINO
+                    SI regmov.codmov = 2 ENTONCES
+                        ESC("ERROR: no se puede eliminar un remedio inexistente.")
+                    SINO
+                        ESC("ERROR: no se puede actualizar un remedio inexistente.")
+                    FIN_SI
+                FIN_SI
+                leer_mov // porque el remedio actual del maestro todavía no fue procesado
+            FIN_SI
+        FIN_SI
+    FIN_MIENTRAS
+    CERRAR(archmae_rem)
+    CERRAR(archmov)
+    CERRAR(mae_actual)
+    CERRAR(archvenc)
+FIN_ACCION
