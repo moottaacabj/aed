@@ -1,0 +1,71 @@
+ACCION cortedecontrol_2.11 ES
+AMBIENTE
+    fecha = REGISTRO // representa una fecha
+        dia: 1..31
+        mes: 1..12
+        anio: N(4)
+    FIN_REGISTRO
+    alumno = REGISTRO // representa un alumno de la utn
+        sexo: caracter
+        carrera: AN(30)
+        legajo: N(8)
+        fecha_ing: fecha
+        tot_aprob: entero
+    FIN_REGISTRO
+    // para realizar el corte, el archivo tiene que estar ordenado por sexo y carrera
+    archalum: ARCHIVO DE alumno ORDENADO POR sexo, carrera
+    regalum: alumno
+    aux_sexo: caracter // guarda el sexo actual
+    aux_car: AN(30) // guarda la carrera actual
+    mas_car, men_car: entero // contadores por carrera
+    mas_sexo, men_sexo: entero // contadores por sexo
+    mas_gral, men_gral: entero // contadores generales
+PROCESO
+    ABRIR E/(archalum)
+    // los contadores generales se inicializan 
+    mas_gral := 0
+    men_gral := 0
+    LEER(archalum, regalum) // necesitamos tener un alumno disponible
+    MIENTRAS NFDA(archalum) HACER // este ciclo continúa mientras todavía queden alumnos en el archivo
+        aux_sexo := regalum.sexo
+        // cada repetición completa de este ciclo procesa un sexo
+        mas_sexo := 0
+        men_sexo := 0
+        MIENTRAS NFDA(archalum) Y (regalum.sexo = aux_sexo) HACER // corte por carrera
+            aux_car := regalum.carrera
+            // comienza una nueva carrera
+            mas_car := 0
+            men_car := 0
+            MIENTRAS NFDA(archalum) Y (regalum.sexo = aux_sexo) Y (regalum.carrera = aux_car) HACER
+                SI regalum.fecha_ing.anio = 2009 ENTONCES
+                    SI regalum.tot_aprob > 20 ENTONCES
+                        mas_car := mas_car + 1
+                        mas_sexo := mas_sexo + 1
+                        mas_gral := mas_gral + 1
+                    SINO
+                        SI regalum.tot_aprob < 20 ENTONCES
+                            men_car := men_car + 1
+                            men_sexo := men_sexo + 1
+                            men_gral := men_gral + 1
+                        FIN_SI
+                    FIN_SI
+                FIN_SI
+                LEER(archalum, regalum)
+            FIN_MIENTRAS
+            // resultados de la carrera que terminó
+            ESC("sexo: ", aux_sexo)
+            ESC("carrera: ", aux_car)
+            ESC("ingresaron en 2009 con más de 20 materias: ", mas_car)
+            ESC("ingresaron en 2009 con menos de 20 materias: ", men_car)
+        FIN_MIENTRAS
+        // resultados del sexo que terminó
+        ESC("total del sexo: ", aux_sexo)
+        ESC("ingresaron en 2009 con más de 20 materias: ", mas_sexo)
+        ESC("ingresaron en 2009 con menos de 20 materias: ", men_sexo)
+    FIN_MIENTRAS
+    // resultados de todo el archivo
+    ESC("total general")
+    ESC("ingresaron en 2009 con más de 20 materias: ", mas_gral)
+    ESC("ingresaron en 2009 con menos de 20 materias: ", men_gral)
+    CERRAR(archalum)
+FIN_ACCION
