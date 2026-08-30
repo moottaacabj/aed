@@ -1,0 +1,82 @@
+ACCION mezcla_2.17 ES
+AMBIENTE
+    aspirante = REGISTRO // representa un aspirante al cursillo
+        dni: N(8)
+        apynom: AN(50)
+        carrera: AN(30)
+        fecha_nac: AN(10)
+        email: AN(50)
+        colegio_sec: AN(50)
+        fecha_insc: AN(10)
+        aprobado: AN(2) // “SI” o “NO”
+    FIN_REGISTRO
+
+    seguimiento = REGISTRO // estructura del archivo de salida
+        dni: N(8)
+        apynom: AN(50)
+        email: AN(50)
+        colegio_sec: AN(50)
+    FIN_REGISTRO
+
+    archago: ARCHIVO DE aspirante ORDENADO POR dni
+    archfeb: ARCHIVO DE aspirante ORDENADO POR dni
+    archseg: ARCHIVO DE seguimiento ORDENADO POR dni
+
+    regago, regfeb: aspirante
+    regseg: seguimiento
+
+    cant: entero // cantidad de aspirantes grabados
+
+    PROCEDIMIENTO leer_ago ES
+        LEER(archago, regago)
+        SI FDA(archago) ENTONCES
+            regago.dni := HV
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+    PROCEDIMIENTO leer_feb ES
+        LEER(archfeb, regfeb)
+        SI FDA(archfeb) ENTONCES
+            regfeb.dni := HV
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+PROCESO
+    ABRIR E/(archago)
+    ABRIR E/(archfeb)
+    ABRIR S/(archseg)
+
+    cant := 0
+
+    // primera lectura de cada archivo
+    leer_ago
+    leer_feb
+
+    MIENTRAS (regago.dni <> HV) O (regfeb.dni <> HV) HACER
+        SI regago.dni < regfeb.dni ENTONCES  // el registro de agosto es el menor
+            SI regago.aprobado = "NO" ENTONCES
+                regseg.dni := regago.dni
+                regseg.apeynom := regago.apeynom
+                regseg.email := regago.email
+                regseg.colegio_sec := regago.colegio_sec
+                GRABAR(archseg, regseg)
+                cant := cant + 1
+            FIN_SI
+            leer_ago
+        SINO // el registro de febrero es el menor
+            SI regfeb.aprobado = "NO" ENTONCES
+                regseg.dni := regfeb.dni
+                regseg.apeynom := regfeb.apeynom
+                regseg.email := regfeb.email
+                regseg.colegio_sec := regfeb.colegio_sec
+                GRABAR(archseg, regseg)
+                cant := cant + 1
+            FIN_SI
+            leer_feb
+        FIN_SI
+    FIN_MIENTRAS
+    ESC("cantidad de aspirantes grabados en seguimiento: ", cant)
+    CERRAR(archago)
+    CERRAR(archfeb)
+    CERRAR(archseg)
+FIN_ACCION
