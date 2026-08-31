@@ -1,0 +1,137 @@
+ACCION actualiz_indexados_3.09 ES
+AMBIENTE
+    fecha = REGISTRO
+        dd: 1..31
+        mm: 1..12
+        aa: N(4)
+    FIN_REGISTRO
+
+    cliente = REGISTRO
+        cli_id: N(6)
+        cli_nombre: AN(40)
+        cli_cuit: N(11)
+        cli_saldo: real
+    FIN_REGISTRO
+
+    detalle = REGISTRO
+        nro_operac: N(8)
+        fecha_op: fecha
+        cliente_id: N(6)
+        importe: real
+        fact_num: N(8)
+    FIN_REGISTRO
+
+    venta = REGISTRO
+        venta_num: N(8)
+        venta_fecha: fecha
+        fact_num: N(8)
+        prod_id: N(6)
+        cant_vendida: entero
+        cliente_id: N(6)
+    FIN_REGISTRO
+
+    producto = REGISTRO
+        prod_id: N(6)
+        cant_stock: entero
+        prod_detalle: AN(40)
+        costo_unit: real
+    FIN_REGISTRO
+
+    arch_cli: ARCHIVO DE cliente INDEXADO POR cli_id // se usa para buscar un cliente y actualizar su saldo
+    arch_det: ARCHIVO DE detalle INDEXADO POR nro_operac // se usa para agregar el detalle de cada venta
+    arch_ven: ARCHIVO DE venta ORDENADO POR venta_num // se usa para procesar todas las ventas
+    arch_prod: ARCHIVO DE producto INDEXADO POR prod_id // se usa para buscar productos y descontar stock
+
+    reg_cli: cliente
+    reg_det: detalle
+    reg_ven: venta
+    reg_prod: producto
+
+    //variables auxiliares
+    venta_act: N(8) // guarda el número de venta que se está procesando
+    factura_act: N(8) // guarda la factura de esa venta
+    cliente_act: N(6) // guarda el cliente de la venta
+    fecha_act: fecha
+    total_venta: real // acumula el importe de una venta
+    total_prod: entero // acumula todos los productos vendidos
+    nro_op: N(8) // guarda el último número de operación utilizado
+
+PROCESO
+    ABRIR E/S(arch_cli) // E/S: entrada y salida (permite leer y modificar)
+    ABRIR E/S(arch_det)
+    ABRIR E/(arch_ven)
+    ABRIR E/S(arch_prod)
+
+    nro_op := 0
+    LEER(arch_det, reg_det)
+
+    MIENTRAS NFDA(arch_det) HACER
+        SI reg_det.nro_operac > nro_op ENTONCES // este ciclo busca el número de operación más grande
+            nro_op := reg_det.nro_operac
+        FIN_SI
+
+        LEER(arch_det, reg_det)
+    FIN_MIENTRAS
+
+    total_prod := 0 // cuenta la cantidad total de unidades vendidas entre todas las ventas
+    LEER(arch_ven, reg_ven)
+
+    MIENTRAS NFDA(arch_ven) HACER
+        venta_act := reg_ven.venta_num // se guardan los datos del primer registro de la venta actual
+        factura_act := reg_ven.fact_num
+        cliente_act := reg_ven.cliente_id
+        fecha_act := reg_ven.venta_fecha
+        total_venta := 0 // vuelve a cero porque se comienza a calcular una venta nueva
+
+        MIENTRAS NFDA(arch_ven) Y reg_ven.venta_num = venta_act HACER
+            CLAVE := reg_ven.prod_id
+            LEER(arch_prod, reg_prod)
+
+            SI NFDA(arch_prod) ENTONCES
+                reg_prod.cant_stock := reg_prod.cant_stock - reg_ven.cant_vendida // se resta del stock la cantidad vendida
+                total_venta := total_venta + reg_ven.cant_vendida * reg_prod.costo_unit
+                total_prod := total_prod + reg_ven.cant_vendida // acumular productos vendidos
+                REGRABAR(arch_prod, reg_prod) // guarda la modificación en el archivo de productos
+            SINO
+                ESC("Producto inexistente: ", reg_ven.prod_id)
+            FIN_SI
+            LEER(arch_ven, reg_ven) // se lee el siguiente registro
+        FIN_MIENTRAS
+
+        CLAVE := cliente_act // se busca al cliente que realizó esa venta usando su código como clave
+        LEER(arch_cli, reg_cli)
+
+        SI NFDA(arch_cli) ENTONCES
+            reg_cli.cli_saldo := reg_cli.cli_saldo + total_venta // si el cliente existe, se suma el total de la compra a su saldo
+            REGRABAR(arch_cli, reg_cli)
+
+            nro_op := nro_op + 1
+            reg_det.nro_operac := nro_op
+            reg_det.fecha_op := fecha_act
+            reg_det.cliente_id := cliente_act
+            reg_det.importe := total_venta
+            reg_det.fact_num := factura_act
+            GRABAR(arch_det, reg_det) // agrega el nuevo registro al archivo de detalles
+        SINO
+            ESC("Cliente inexistente: ", cliente_act)
+        FIN_SI
+    FIN_MIENTRAS
+
+    ESC("Total de productos vendidos: ", total_prod)
+
+    LEER(arch_cli, reg_cli)
+
+    MIENTRAS NFDA(arch_cli) HACER // mostrar todos los clientes
+        ESC("Cliente ID: ", reg_cli.cli_id)
+        ESC("Nombre: ", reg_cli.cli_nombre)
+        ESC("CUIT: ", reg_cli.cli_cuit)
+        ESC("Saldo actualizado: $", reg_cli.cli_saldo)
+
+        LEER(arch_cli, reg_cli)
+    FIN_MIENTRAS
+
+    CERRAR(arch_cli)
+    CERRAR(arch_det)
+    CERRAR(arch_ven)
+    CERRAR(arch_prod)
+FIN_ACCION
