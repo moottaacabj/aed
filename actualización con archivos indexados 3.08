@@ -1,0 +1,91 @@
+ACCION actualiz_index_3.08 ES
+AMBIENTE
+    amigo = REGISTRO
+        cod_usuario: ENTERO
+        cod_amigo: ENTERO
+        fecha_amistad: AN(10)
+        mensaje_muro: AN(200)
+    FIN_REGISTRO
+
+    arch_amigos: ARCHIVO DE amigo INDEXADO POR cod_usuario, cod_amigo
+    reg_amigo: amigo
+
+    cod_usuario, cod_amigo: ENTERO // indexado por ambos, se necesita la combinación de los dos códigos para localizar una amistad
+    opcion: ENTERO
+
+    PROCEDIMIENTO agregar_amigo ES
+        reg_amigo.cod_usuario := cod_usuario
+        reg_amigo.cod_amigo := cod_amigo
+        LEER(arch_amigos, reg_amigo)
+        SI EXISTE ENTONCES
+            ESC("Error: el usuario ingresado ya es su amigo")
+        SINO
+            reg_amigo.cod_usuario := cod_usuario
+            reg_amigo.cod_amigo := cod_amigo
+            ESC("Ingrese la fecha de amistad: ")
+            LEER(reg_amigo.fecha_amistad)
+            reg_amigo.mensaje_muro := " "
+            GRABAR(arch_amigos, reg_amigo)
+            ESC("Amigo agregado correctamente")
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+    PROCEDIMIENTO eliminar_amigo ES
+        reg_amigo.cod_usuario := cod_usuario
+        reg_amigo.cod_amigo := cod_amigo
+        LEER(arch_amigos, reg_amigo)
+        SI EXISTE ENTONCES
+            ELIMINAR(arch_amigos, reg_amigo) // baja física porque la consigna pide eliminar la amistad y el registro no posee ningún campo que permita marcarla como inactiva
+            ESC("Amistad eliminada correctamente")
+        SINO
+            ESC("Error: el usuario ingresado no pertenece a sus amigos")
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+    PROCEDIMIENTO escribir_muro ES
+        reg_amigo.cod_usuario := cod_usuario
+        reg_amigo.cod_amigo := cod_amigo
+        LEER(arch_amigos, reg_amigo)
+        SI EXISTE ENTONCES
+            ESC("Ingrese el mensaje que desea escribir: ")
+            LEER(reg_amigo.mensaje_muro)
+	            REGRABAR(arch_amigos, reg_amigo) // modificar el registro
+            ESC("Mensaje escrito correctamente")
+        SINO
+            ESC("Error: no puede escribir en el muro de un usuario que no es su amigo")
+        FIN_SI
+    FIN_PROCEDIMIENTO
+
+PROCESO
+
+    ABRIR E/S(arch_amigos)
+
+    ESC("Ingrese su código de usuario: ")
+    LEER(cod_usuario)
+
+    ESC("Ingrese el código del amigo: ")
+    LEER(cod_amigo)
+
+    ESC("Seleccione una opción:")
+    ESC("1 - Agregar amigo")
+    ESC("2 - Eliminar amigo")
+    ESC("3 - Escribir en el muro")
+    LEER(opcion)
+
+    SI opcion = 1 ENTONCES
+        agregar_amigo
+    SINO
+        SI opcion = 2 ENTONCES
+            eliminar_amigo
+        SINO
+            SI opcion = 3 ENTONCES
+                escribir_muro
+            SINO
+                ESC("Error: opción incorrecta")
+            FIN_SI
+        FIN_SI
+    FIN_SI
+
+    CERRAR(arch_amigos)
+
+FIN_ACCION
