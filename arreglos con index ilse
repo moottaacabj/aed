@@ -1,0 +1,61 @@
+ACCION calif_aed ES
+AMBIENTE
+    nota = registro
+        legajo: entero
+        n_parc: entero
+        n_recup: entero
+        comision: caracter
+    FIN_REGISTRO
+
+    alumno = registro
+        legajo: entero
+        apynom: an(60)
+        dni: entero
+        fec_ing: an(10)
+        carrera: an(40)
+        cod_mat: entero
+    FIN_REGISTRO
+
+    arch_notas: archivo de nota
+    reg_nota: nota
+
+    arch_alum: archivo de alumno INDEXADO POR legajo
+    reg_alum: alumno
+
+    cant_mat: entero
+    materias: arreglo[1..cant_mat] de an(50)
+
+    aprobados: arreglo[1..150] de an(60)
+    cant_aprob: entero
+PROCESO
+    ABRIR E/(arch_notas)
+    ABRIR E/(arch_alum)
+
+    cant_aprob := 0
+
+    ESC("ALUMNOS QUE NO APROBARON EL PRIMER PARCIAL")
+    ESC("Legajo | Apellido y nombre | Fecha de ingreso | Última materia aprobada")
+
+    LEER(arch_notas, reg_nota)
+
+    MIENTRAS NFDA(arch_notas) HACER
+        reg_alum.legajo := reg_nota.legajo
+        LEER(arch_alum, reg_alum)
+        SI EXISTE ENTONCES
+            SI reg_nota.comision = "C" ENTONCES
+                SI (reg_nota.n_parc >= 6) O (reg_nota.n_recup >= 6) ENTONCES
+                    cant_aprob := cant_aprob + 1
+                    aprobados[cant_aprob] := reg_alum.apynom
+                FIN_SI
+            FIN_SI
+            SI (reg_nota.n_parc < 6) Y (reg_nota.n_recup < 6) ENTONCES
+                ESC(reg_alum.legajo, reg_alum.apynom, reg_alum.fec_ing, materias[reg_alum.cod_mat])
+            FIN_SI
+        SINO
+            ESC("ERROR: NO EXISTE EL ALUMNO")
+        FIN_SI
+        LEER(arch_notas, reg_nota)
+    FIN_MIENTRAS
+    CERRAR(arch_notas)
+    CERRAR(arch_alum)
+FIN_ACCION
