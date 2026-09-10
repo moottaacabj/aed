@@ -1,0 +1,36 @@
+ACCION Listado_Alumnos ES
+AMBIENTE
+    fecha = REGISTRO
+        aa: N(4)
+        mm: 1..12
+        dd: 1..31
+    FIN_REGISTRO
+    
+    alumno = REGISTRO
+        apynom: AN(50)
+        carrera: ("ISI", "IEM", "IQ")
+        nro_legajo: N(6)
+        fecha_nac: fecha
+        fecha_ing: fecha
+        dni: N(8)
+        sexo: ("M", "F")
+        fecha_ult_aprob: fecha
+        nota: real
+    FIN_REGISTRO
+    
+    alumnos: archivo de alumno
+    reg_alumno: alumno
+    
+PROCESO
+    ABRIR E/(alumnos)
+    LEER(alumnos, reg_alumno)
+
+    ESC("Nro_Legajo", "Apellido_Nombre", "Documento", "Carrera")
+
+    MIENTRAS NFDA(alumnos) HACER
+        ESC(reg_alumno.nro_legajo, reg_alumno.apynom, reg_alumno.dni, reg_alumno.carrera)
+        LEER(alumnos, reg_alumno)
+    FIN_MIENTRAS
+    
+    CERRAR(alumnos)
+FIN_ACCION
