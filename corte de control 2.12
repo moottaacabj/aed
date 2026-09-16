@@ -1,0 +1,51 @@
+ACCION Ejercicio_2_12 ES
+  AMBIENTE
+    poblacion = registro
+      departamento : AN(30)
+      ciudad : AN(30)
+      cant_habitantes : entero
+    FIN_REGISTRO
+
+    departamento_total = registro
+      departamento : AN(30)
+      cant_habitantes : entero
+    FIN_REGISTRO
+
+    entrada : secuencia de poblacion
+    salida : secuencia de departamento_total
+
+    reg_entrada : poblacion
+    reg_salida : departamento_total
+
+    res_departamento : AN(30)
+    acum_habitantes : entero
+
+    PROCEDIMIENTO corte_departamento ES
+      reg_salida.departamento := res_departamento
+      reg_salida.cant_habitantes := acum_habitantes
+      ESC(salida, reg_salida)
+      acum_habitantes := 0
+      res_departamento := reg_entrada.departamento
+    FIN_PROCEDIMIENTO
+
+  PROCESO
+    ARR(entrada)
+    AVZ(entrada, reg_entrada)
+    CREAR(salida)
+
+    acum_habitantes := 0
+    res_departamento := reg_entrada.departamento
+
+    MIENTRAS NFDS(entrada) HACER
+      SI reg_entrada.departamento <> res_departamento ENTONCES // como la secuencia está ordenada por departamento, cuando aparece un departamento diferente significa que ya terminamos de procesar todas las ciudades del anterior
+        corte_departamento()
+      FIN_SI
+      acum_habitantes := acum_habitantes + reg_entrada.cant_habitantes
+      AVZ(entrada, reg_entrada)
+    FIN_MIENTRAS
+
+    corte_departamento()
+    CERRAR(entrada)
+    CERRAR(salida)
+
+FIN_ACCION
