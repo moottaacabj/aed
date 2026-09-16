@@ -1,0 +1,116 @@
+ACCION Ejercicio_3_26 ES
+AMBIENTE
+    fecha = REGISTRO
+        aa: N(4)
+        mm: 1..12
+        dd: 1..31
+    FIN_REGISTRO
+
+    factura = REGISTRO
+        nro_factura: N(10)
+        nro_usuario: N(10)
+        zona: ("A", "B", "C", "D")
+        fechafact: fecha
+        consumo: real
+    FIN_REGISTRO
+
+    facturas: archivo de factura
+    reg: factura
+
+    consumos: ARREGLO [1..12, 1..4] DE REAL
+    importes: ARREGLO [1..12, 1..4] DE REAL
+
+    tarifa: ARREGLO [1..4] DE REAL
+
+    total_mes_consumo: ARREGLO [1..12] DE REAL
+    total_mes_importe: ARREGLO [1..12] DE REAL
+
+    total_zona_consumo: ARREGLO [1..4] DE REAL
+    total_zona_importe: ARREGLO [1..4] DE REAL
+
+    total_general_consumo, total_general_importe: real
+
+    i, j, zona_num: entero
+
+PROCESO
+    total_general_consumo := 0
+    total_general_importe := 0
+
+    tarifa[1] := 0,05
+    tarifa[2] := 0,07
+    tarifa[3] := 0,09
+    tarifa[4] := 0,13
+
+    PARA i := 1 HASTA 12 HACER
+        total_mes_consumo[i] := 0
+        total_mes_importe[i] := 0
+
+        PARA j := 1 HASTA 4 HACER
+            consumos[i, j] := 0
+            importes[i, j] := 0
+        FIN_PARA
+    FIN_PARA
+
+    PARA j := 1 HASTA 4 HACER
+        total_zona_consumo[j] := 0
+        total_zona_importe[j] := 0
+    FIN_PARA
+
+    ABRIR E/(facturas)
+    LEER(facturas, reg)
+
+    MIENTRAS NFDA(facturas) HACER
+        SEGUN reg.zona HACER
+            "A": zona_num := 1
+            "B": zona_num := 2
+            "C": zona_num := 3
+            "D": zona_num := 4
+        FIN_SEGUN
+
+        consumos[reg.fechafact.mm, zona_num] :=
+            consumos[reg.fechafact.mm, zona_num] + reg.consumo
+
+        importes[reg.fechafact.mm, zona_num] :=
+            importes[reg.fechafact.mm, zona_num]
+            + reg.consumo * tarifa[zona_num]
+
+        LEER(facturas, reg)
+    FIN_MIENTRAS
+
+    CERRAR(facturas)
+
+    PARA i := 1 HASTA 12 HACER
+        PARA j := 1 HASTA 4 HACER
+            total_mes_consumo[i] :=
+                total_mes_consumo[i] + consumos[i, j]
+
+            total_mes_importe[i] :=
+                total_mes_importe[i] + importes[i, j]
+
+            total_zona_consumo[j] :=
+                total_zona_consumo[j] + consumos[i, j]
+
+            total_zona_importe[j] :=
+                total_zona_importe[j] + importes[i, j]
+        FIN_PARA
+
+        ESC("Mes: ", i)
+        ESC("Consumos: ", consumos[i, 1], consumos[i, 2], consumos[i, 3], consumos[i, 4])
+        ESC("Total de consumo del mes: ", total_mes_consumo[i])
+
+        ESC("Importes: ", importes[i, 1], importes[i, 2], importes[i, 3], importes[i, 4])
+        ESC("Total facturado del mes: ", total_mes_importe[i])
+    FIN_PARA
+
+    PARA j := 1 HASTA 4 HACER
+        ESC("Total consumo zona ", j, ": ", total_zona_consumo[j])
+        ESC("Total importe zona ", j, ": ", total_zona_importe[j])
+
+        total_general_consumo := total_general_consumo + total_zona_consumo[j]
+
+        total_general_importe := total_general_importe + total_zona_importe[j]
+    FIN_PARA
+
+    ESC("Total general de consumo: ", total_general_consumo)
+    ESC("Total general facturado: ", total_general_importe)
+FIN_ACCION
