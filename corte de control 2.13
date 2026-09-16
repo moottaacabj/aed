@@ -1,0 +1,126 @@
+ACCION Ejercicio_2_13 ES
+  AMBIENTE
+    fecha = registro
+      aa : N(4)
+      mm : N(2)
+      dd : N(2)
+    FIN_REGISTRO
+
+    clave = registro
+      cod_sucursal : N(11)
+      marca : AN(20)
+      modelo : AN(20)
+      cod_tragamonedas : N(11)
+      fecha_reparacion : fecha
+    FIN_REGISTRO
+
+    reparacion = registro
+      clave_rep : clave
+      costo_reparacion : N(6,2)
+    FIN_REGISTRO
+
+    reparaciones : archivo de reparacion ordenado por clave_rep
+
+    r_rep : reparacion
+
+    cont_trag, cont_modelo, cont_marca : entero
+    cont_sucursal, total_rep : entero
+
+    costo_trag, costo_modelo, costo_marca : real
+    costo_sucursal, total_costo : real
+
+    res_trag : N(11)
+    res_modelo : AN(20)
+    res_marca : AN(20)
+    res_sucursal : N(11)
+
+    SUBACCION corte_trag ES
+      ESC("Tragamonedas: ", res_trag, " - Cantidad de reparaciones: ", cont_trag)
+      ESC("Costo de reparaciones: ", costo_trag)
+      cont_modelo := cont_modelo + cont_trag
+      costo_modelo := costo_modelo + costo_trag
+      cont_trag := 0
+      costo_trag := 0
+      res_trag := r_rep.clave_rep.cod_tragamonedas
+    FIN_SUBACCION
+
+    SUBACCION corte_modelo ES
+      corte_trag()
+      ESC("Modelo: ", res_modelo, " - Cantidad de reparaciones: ", cont_modelo)
+      ESC("Costo de reparaciones: ", costo_modelo)
+      cont_marca := cont_marca + cont_modelo
+      costo_marca := costo_marca + costo_modelo
+      cont_modelo := 0
+      costo_modelo := 0
+      res_modelo := r_rep.clave_rep.modelo
+    FIN_SUBACCION
+
+    SUBACCION corte_marca ES
+      corte_modelo()
+      ESC("Marca: ", res_marca, " - Cantidad de reparaciones: ", cont_marca)
+      ESC("Costo de reparaciones: ", costo_marca)
+      cont_sucursal := cont_sucursal + cont_marca
+      costo_sucursal := costo_sucursal + costo_marca
+      cont_marca := 0
+      costo_marca := 0
+      res_marca := r_rep.clave_rep.marca
+    FIN_SUBACCION
+
+    SUBACCION corte_sucursal ES
+      corte_marca()
+      ESC("Sucursal: ", res_sucursal, " - Cantidad de reparaciones: ", cont_sucursal)
+      ESC("Costo de reparaciones: ", costo_sucursal)
+      total_rep := total_rep + cont_sucursal
+      total_costo := total_costo + costo_sucursal
+      cont_sucursal := 0
+      costo_sucursal := 0
+      res_sucursal := r_rep.clave_rep.cod_sucursal
+    FIN_SUBACCION
+
+  PROCESO
+    ABRIR E/(reparaciones)
+    LEER(reparaciones, r_rep)
+    cont_trag := 0
+    cont_modelo := 0
+    cont_marca := 0
+    cont_sucursal := 0
+    total_rep := 0
+    costo_trag := 0
+    costo_modelo := 0
+    costo_marca := 0
+    costo_sucursal := 0
+    total_costo := 0
+    res_sucursal := r_rep.clave_rep.cod_sucursal
+    res_marca := r_rep.clave_rep.marca
+    res_modelo := r_rep.clave_rep.modelo
+    res_trag := r_rep.clave_rep.cod_tragamonedas
+
+    MIENTRAS NFDA(reparaciones) HACER
+      SI r_rep.clave_rep.cod_sucursal <> res_sucursal ENTONCES
+        corte_sucursal()
+      SINO
+        SI r_rep.clave_rep.marca <> res_marca ENTONCES
+          corte_marca()
+        SINO
+          SI r_rep.clave_rep.modelo <> res_modelo ENTONCES
+            corte_modelo()
+          SINO
+            SI r_rep.clave_rep.cod_tragamonedas <> res_trag ENTONCES
+              corte_trag()
+            FIN_SI
+          FIN_SI
+        FIN_SI
+      FIN_SI
+
+      cont_trag := cont_trag + 1
+      costo_trag := costo_trag + r_rep.costo_reparacion
+
+      LEER(reparaciones, r_rep)
+    FIN_MIENTRAS
+
+    corte_sucursal()
+    ESC("TOTAL GENERAL DE REPARACIONES: ", total_rep)
+    ESC("COSTO TOTAL DE REPARACIONES: ", total_costo)
+    CERRAR(reparaciones)
+    
+FIN_ACCION
