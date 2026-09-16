@@ -67,12 +67,8 @@ PROCESO
             "D": zona_num := 4
         FIN_SEGUN
 
-        consumos[reg.fechafact.mm, zona_num] :=
-            consumos[reg.fechafact.mm, zona_num] + reg.consumo
-
-        importes[reg.fechafact.mm, zona_num] :=
-            importes[reg.fechafact.mm, zona_num]
-            + reg.consumo * tarifa[zona_num]
+        consumos[reg.fechafact.mm, zona_num] := consumos[reg.fechafact.mm, zona_num] + reg.consumo
+        importes[reg.fechafact.mm, zona_num] := importes[reg.fechafact.mm, zona_num] + reg.consumo * tarifa[zona_num]
 
         LEER(facturas, reg)
     FIN_MIENTRAS
@@ -81,17 +77,10 @@ PROCESO
 
     PARA i := 1 HASTA 12 HACER
         PARA j := 1 HASTA 4 HACER
-            total_mes_consumo[i] :=
-                total_mes_consumo[i] + consumos[i, j]
-
-            total_mes_importe[i] :=
-                total_mes_importe[i] + importes[i, j]
-
-            total_zona_consumo[j] :=
-                total_zona_consumo[j] + consumos[i, j]
-
-            total_zona_importe[j] :=
-                total_zona_importe[j] + importes[i, j]
+            total_mes_consumo[i] := total_mes_consumo[i] + consumos[i, j]
+            total_mes_importe[i] := total_mes_importe[i] + importes[i, j]
+            total_zona_consumo[j] := total_zona_consumo[j] + consumos[i, j]
+            total_zona_importe[j] :=total_zona_importe[j] + importes[i, j]
         FIN_PARA
 
         ESC("Mes: ", i)
@@ -107,7 +96,6 @@ PROCESO
         ESC("Total importe zona ", j, ": ", total_zona_importe[j])
 
         total_general_consumo := total_general_consumo + total_zona_consumo[j]
-
         total_general_importe := total_general_importe + total_zona_importe[j]
     FIN_PARA
 
