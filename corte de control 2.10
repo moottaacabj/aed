@@ -1,0 +1,40 @@
+ACCION Ejercicio_2_10 ES
+  AMBIENTE
+    alumno = REGISTRO
+      carrera : AN(30)
+    FIN_REGISTRO
+
+    alumnos : ARCHIVO DE alumno ORDENADO POR carrera
+    reg_alumno : alumno
+
+    res_carrera : AN(30)
+    cont_carrera, total_general : ENTERO
+
+    PROCEDIMIENTO corte_carrera ES
+      ESC("Carrera: ", res_carrera, " - Cantidad de alumnos: ", cont_carrera)
+      total_general := total_general + cont_carrera // después suma esa cantidad al total general
+      cont_carrera := 0 // reinicia el contador
+      res_carrera := reg_alumno.carrera // guarda la carrera que se está procesando actualmente
+    FIN_PROCEDIMIENTO
+
+  PROCESO
+    ABRIR E/(alumnos)
+    LEER(alumnos, reg_alumno)
+
+    cont_carrera := 0
+    total_general := 0
+    res_carrera := reg_alumno.carrera
+
+    MIENTRAS NFDA(alumnos) HACER
+      SI reg_alumno.carrera <> res_carrera ENTONCES i // la carrera del registro actual es diferente de la carrera resguardada, significa que terminaron los alumnos de la carrera anterior, por eso haces el corte
+        corte_carrera()
+      FIN_SI
+      cont_carrera := cont_carrera + 1 // por cada registro leído, se suma un alumno a la carrera actual
+      LEER(alumnos, reg_alumno)
+    FIN_MIENTRAS
+
+    corte_carrera()
+    ESC("TOTAL GENERAL DE ALUMNOS: ", total_general)
+    CERRAR(alumnos)
+    
+FIN_ACCION
