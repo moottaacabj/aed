@@ -1,0 +1,31 @@
+ACCION Ejercicio_11 ES
+AMBIENTE
+    video = registro
+        titulo: alfanumerico
+        director: alfanumerico
+        categoria: alfanumerico
+        cant_vistas: entero
+        alquilado: ("si", "no")
+    FIN_REGISTRO
+
+    videos: ARREGLO [1..100] DE video
+    cat: alfanumerico
+    i, cant: entero
+
+PROCESO
+    ESC("Ingrese la categoría a buscar")
+    LEER(cat)
+
+    cant := 0
+
+    PARA i := 1 A 100 HACER
+        SI videos[i].categoria = cat ENTONCES
+            ESC("Película: ", videos[i].titulo)
+            cant := cant + 1
+        FIN_SI
+    FIN_PARA
+
+    SI cant = 0 ENTONCES
+        ESC("No hay películas de esa categoría")
+    FIN_SI
+FIN_ACCION
