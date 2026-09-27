@@ -1,6 +1,8 @@
 Todas las consignas que usé para crear los códigos de este repo
 fueron sacadas de la guía PDF de AED, excepto los que tienen tres 
-números, los cuales fueron sacados de la página web de AED.
+números, los cuales fueron sacados de la página web de AED. (Aclaración
+importante porque alguna veces coinciden los números con los ejercicios pero
+otras no.)
 
 - Ejemplo de ejercicio sacado de la guía: "arreglos 3.01"
 - Ejemplo de ejercicio sacado de la web: "actualización secuencial 2.2.1"
