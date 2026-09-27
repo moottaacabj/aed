@@ -1,0 +1,71 @@
+ACCION Almacenar_100 ES
+AMBIENTE
+    numeros: ARREGLO [1..100] DE ENTERO
+    i: ENTERO
+PROCESO
+    PARA i := 1 A 100 HACER
+        ESC("Ingrese el número ", i)
+        LEER(numeros[i])
+    FIN_PARA
+FIN_ACCION
+
+
+
+ACCION Mayor_y_Menor ES
+AMBIENTE
+    numeros: ARREGLO [1..100] DE ENTERO
+    i, pos_mayor, pos_menor: ENTERO
+    mayor, menor: ENTERO
+PROCESO
+    PARA i := 1 A 100 HACER
+        ESC("Ingrese el número ", i)
+        LEER(numeros[i])
+    FIN_PARA
+
+    mayor := numeros[1]
+    menor := numeros[1]
+    pos_mayor := 1
+    pos_menor := 1
+
+    PARA i := 2 A 100 HACER
+        SI numeros[i] > mayor ENTONCES
+            mayor := numeros[i]
+            pos_mayor := i
+        FIN_SI
+
+        SI numeros[i] < menor ENTONCES
+            menor := numeros[i]
+            pos_menor := i
+        FIN_SI
+    FIN_PARA
+
+    ESC("Mayor: ", mayor, ". Posición: ", pos_mayor)
+    ESC("Menor: ", menor, ". Posición: ", pos_menor)
+FIN_ACCION
+
+
+
+ACCION Pares ES
+AMBIENTE
+    numeros: ARREGLO [1..100] DE ENTERO
+    i, cantidad_pares, suma_pares: ENTERO
+
+PROCESO
+    PARA i := 1 A 100 HACER
+        ESC("Ingrese el número ", i)
+        LEER(numeros[i])
+    FIN_PARA
+
+    cantidad_pares := 0
+    suma_pares := 0
+
+    PARA i := 1 A 100 HACER
+        SI numeros[i] MOD 2 = 0 ENTONCES
+            cantidad_pares := cantidad_pares + 1
+            suma_pares := suma_pares + numeros[i]
+        FIN_SI
+    FIN_PARA
+
+    ESC("Cantidad de números pares: ", cantidad_pares)
+    ESC("Suma de los números pares: ", suma_pares)
+FIN_ACCION
