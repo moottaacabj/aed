@@ -1,0 +1,48 @@
+ACCION Ejercicio_14 ES
+AMBIENTE
+    modelo = registro
+        nombre: alfanumerico
+        altura: real
+    FIN_REGISTRO
+
+    mods: ARREGLO [1..m] DE modelo
+    aux: modelo
+    nom_dis: alfanumerico
+    d, m, i, j, k: entero
+
+PROCESO
+    ESC("Ingrese la cantidad de diseñadores")
+    LEER(d)
+
+    PARA k := 1 A d HACER
+        ESC("Ingrese el nombre del diseñador")
+        LEER(nom_dis)
+        ESC("Ingrese la cantidad de modelos de este diseñador")
+        LEER(m)
+
+        PARA i := 1 A m HACER
+            ESC("Ingrese el nombre de la modelo")
+            LEER(mods[i].nombre)
+
+            ESC("Ingrese su altura")
+            LEER(mods[i].altura)
+        FIN_PARA
+
+        PARA i := 2 A m HACER
+            aux := mods[i]
+            j := i - 1
+
+            MIENTRAS j > 0 Y aux.altura < mods[j].altura HACER
+                mods[j+1] := mods[j]
+                j := j - 1
+            FIN_MIENTRAS
+
+            mods[j+1] := aux
+        FIN_PARA
+
+        ESC("Lista del diseñador: ", nom_dis)
+        PARA i := 1 A m HACER
+            ESC(mods[i].nombre, " - altura: ", mods[i].altura)
+        FIN_PARA
+    FIN_PARA
+FIN_ACCION
