@@ -1,0 +1,46 @@
+ACCION Ejercicio_12 ES
+AMBIENTE
+    video = registro
+        titulo: alfanumerico
+        director: alfanumerico
+        categoria: alfanumerico
+        cant_vistas: entero
+        alquilado: ("si", "no")
+    FIN_REGISTRO
+
+    videos: ARREGLO [1..100] DE video  // ordenado por titulo
+    tit: alfanumerico
+    iz, de, cen, pos: entero
+
+PROCESO
+    ESC("Ingrese el título de la película")
+    LEER(tit)
+
+    iz := 1
+    de := 100
+    pos := 0
+
+    MIENTRAS iz <= de Y pos = 0 HACER
+        cen := (iz + de) DIV 2
+        SI videos[cen].titulo = tit ENTONCES
+            pos := cen
+        SINO
+            SI tit < videos[cen].titulo ENTONCES
+                de := cen - 1
+            SINO
+                iz := cen + 1
+            FIN_SI
+        FIN_SI
+    FIN_MIENTRAS
+    SI pos = 0 ENTONCES
+        ESC("La película no está en el arreglo")
+    SINO
+        SI videos[pos].alquilado = "si" ENTONCES
+            ESC("No se puede alquilar: la película ya está alquilada")
+        SINO
+            videos[pos].alquilado := "si"
+            videos[pos].cant_vistas := videos[pos].cant_vistas + 1
+            ESC("Alquiler realizado")
+        FIN_SI
+    FIN_SI
+FIN_ACCION
