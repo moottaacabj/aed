@@ -6,4 +6,5 @@ números, los cuales fueron sacados de la página web de AED.
 - Ejemplo de ejercicio sacado de la web: "actualización secuencial 2.2.1"
 
 ☆ Guía PDF: https://aed-frre.github.io/extra/files/guia.pdf
+
 ☆ Página web: https://aed-frre.github.io
