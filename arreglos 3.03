@@ -1,0 +1,23 @@
+ACCION Ejercicio_03 ES
+AMBIENTE
+    a: ARREGLO [1..n] DE REAL
+    n, i: ENTERO
+    x, y: REAL
+PROCESO
+    ESC("Ingrese la cantidad de elementos")
+    LEER(n)
+
+    PARA i := 1 A n HACER
+        ESC("Ingrese el elemento ", i)
+        LEER(a[i])
+    FIN_PARA
+
+    ESC("Ingrese x, con x >= 0")
+    LEER(x)
+    y := 0
+
+    PARA i := 1 A n HACER
+        y := y + a[i] * x^i
+    FIN_PARA
+    ESC("El valor de y es: ", y)
+FIN_ACCION
