@@ -1,0 +1,27 @@
+ACCION Ejercicio_04 ES
+AMBIENTE
+    nums: ARREGLO [1..50] DE ENTERO
+    no_mult: ARREGLO [1..50] DE ENTERO
+    i, cant_no, cant_si: ENTERO
+
+PROCESO
+    PARA i := 1 A 50 HACER
+        ESC("Ingrese el número ", i)
+        LEER(nums[i])
+    FIN_PARA
+
+    cant_no := 0
+    cant_si := 0
+
+    PARA i := 1 A 50 HACER
+        SI nums[i] MOD 3 = 0 ENTONCES
+            cant_si := cant_si + 1
+        SINO
+            cant_no := cant_no + 1
+            no_mult[cant_no] := nums[i]
+            nums[i] := nums[i] * 3
+        FIN_SI
+    FIN_PARA
+
+    ESC("Cantidad que ya eran múltiplos de 3: ", cant_si)
+FIN_ACCION
