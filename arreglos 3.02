@@ -1,0 +1,41 @@
+ACCION Ejercicio_02 ES
+AMBIENTE
+    nums: ARREGLO [1..100] DE ENTERO
+    i, mayor, menor, pos_may, pos_men: ENTERO
+    cant_pares, suma_pares: ENTERO
+
+PROCESO
+    PARA i := 1 A 100 HACER
+        ESC("Ingrese el número ", i)
+        LEER(nums[i])
+    FIN_PARA
+
+    mayor := nums[1]
+    menor := nums[1]
+    pos_may := 1
+    pos_men := 1
+    cant_pares := 0
+    suma_pares := 0
+
+    PARA i := 1 A 100 HACER
+        SI nums[i] > mayor ENTONCES
+            mayor := nums[i]
+            pos_may := i
+        FIN_SI
+
+        SI nums[i] < menor ENTONCES
+            menor := nums[i]
+            pos_men := i
+        FIN_SI
+
+        SI nums[i] MOD 2 = 0 ENTONCES
+            cant_pares := cant_pares + 1
+            suma_pares := suma_pares + nums[i]
+        FIN_SI
+    FIN_PARA
+
+    ESC("Mayor: ", mayor, ". Posición: ", pos_may)
+    ESC("Menor: ", menor, ". Posición: ", pos_men)
+    ESC("Cantidad de pares: ", cant_pares)
+    ESC("Suma de pares: ", suma_pares)
+FIN_ACCION
