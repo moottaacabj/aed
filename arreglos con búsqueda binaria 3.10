@@ -1,0 +1,38 @@
+ACCION Ejercicio_10 ES
+AMBIENTE
+    dato = registro
+        cod_loc: entero
+        lluvia: real
+    FIN_REGISTRO
+
+    locs: ARREGLO [1..50] DE dato
+    cod, izq, der, med, pos: entero
+
+PROCESO
+    ESC("Ingrese el código de localidad a buscar")
+    LEER(cod)
+
+    izq := 1
+    der := 50
+    pos := 0
+
+    MIENTRAS izq <= der Y pos = 0 HACER
+        med := (izq + der) DIV 2
+
+        SI locs[med].cod_loc = cod ENTONCES
+            pos := med
+        SINO
+            SI cod < locs[med].cod_loc ENTONCES
+                der := med - 1
+            SINO
+                izq := med + 1
+            FIN_SI
+        FIN_SI
+    FIN_MIENTRAS
+
+    SI pos = 0 ENTONCES
+        ESC("No se encontró la localidad")
+    SINO
+        ESC("En esa localidad llovió ", locs[pos].lluvia," durante el año")
+    FIN_SI
+FIN_ACCION
