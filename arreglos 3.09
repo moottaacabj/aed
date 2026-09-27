@@ -1,0 +1,46 @@
+ACCION Ejercicio_09 ES
+AMBIENTE
+    libro = registro
+        nro_libro: entero
+        titulo: alfanumerico
+        autor: alfanumerico
+        cant_hojas: entero
+    FIN_REGISTRO
+
+    libros: ARREGLO [1..200] DE libro
+    i, pos_tit, pos_may: entero
+
+PROCESO
+    pos_tit := 0
+    pos_may := 0
+
+    PARA i := 1 A 200 HACER
+        SI libros[i].autor = "Nicklaus Wirth" ENTONCES
+            ESC("Libro: ", libros[i].titulo,". Número: ", libros[i].nro_libro)
+            SI pos_may = 0 ENTONCES
+                pos_may := i
+            SINO
+                SI libros[i].cant_hojas > libros[pos_may].cant_hojas ENTONCES
+                    pos_may := i
+                FIN_SI
+            FIN_SI
+        FIN_SI
+
+        SI libros[i].titulo = "Algoritmos + Estructuras de Datos=Programa" ENTONCES
+            pos_tit := i
+        FIN_SI
+    FIN_PARA
+
+    SI pos_tit = 0 ENTONCES
+        ESC("No se encontró el título pedido")
+    SINO
+        ESC("El título pedido está en la posición ", pos_tit)
+    FIN_SI
+
+    SI pos_may = 0 ENTONCES
+        ESC("No hay libros de Nicklaus Wirth")
+    SINO
+        ESC("Su libro de mayor volumen es: ", libros[pos_may].titulo,
+            ". Cantidad de hojas: ", libros[pos_may].cant_hojas)
+    FIN_SI
+FIN_ACCION
