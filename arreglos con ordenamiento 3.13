@@ -1,0 +1,56 @@
+ACCION Ordenar_Seleccion ES
+AMBIENTE
+    alumno = registro
+        legajo: entero
+        aprob: entero
+    FIN_REGISTRO
+
+    alu: ARREGLO [1..N] DE alumno
+    aux: alumno
+    i, j, pos: entero
+
+PROCESO
+    PARA i := 1 A N-1 HACER
+        pos := i
+
+        PARA j := i+1 A N HACER
+            SI alu[j].aprob > alu[pos].aprob ENTONCES
+                pos := j
+            FIN_SI
+        FIN_PARA
+
+        aux := alu[i]
+        alu[i] := alu[pos]
+        alu[pos] := aux
+    FIN_PARA
+FIN_ACCION
+
+
+
+
+ACCION Ordenar_Insercion ES
+AMBIENTE
+    alumno = registro
+        legajo: entero
+        aprob: entero
+    FIN_REGISTRO
+
+    alu: ARREGLO [1..N] DE alumno
+    aux: alumno
+    i, j: entero
+
+PROCESO
+    PARA i := 2 A N HACER
+        aux := alu[i]
+        j := i - 1
+
+        MIENTRAS j > 0 Y aux.aprob > alu[j].aprob HACER
+            alu[j+1] := alu[j]
+            j := j - 1
+        FIN_MIENTRAS
+
+        alu[j+1] := aux
+    FIN_PARA
+FIN_ACCION
+
+// Conviene más inserción directa si el arreglo ya está ordenado, porque en ese caso puede terminar cada búsqueda de posición enseguida. Selección directa, en cambio, revisa todas las posiciones restantes en cada vuelta. Si el arreglo está muy desordenado, ambos pueden requerir una cantidad de trabajo proporcional a N^2; selección suele hacer menos movimientos de alumnos.
