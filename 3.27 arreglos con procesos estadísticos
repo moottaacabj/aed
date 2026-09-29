@@ -1,0 +1,84 @@
+ACCION Ejercicio_27 ES
+AMBIENTE
+    factura = registro
+        nro: N(10)
+        zona: 1..9
+        tipo: 1..4
+        uni: entero
+        grav: real
+        exen: real
+        iva: real
+    FIN_REGISTRO
+
+    tot = registro
+        uni: entero
+        grav: real
+        exen: real
+        iva: real
+    FIN_REGISTRO
+
+    fac: secuencia de factura
+    reg: factura
+
+    m: ARREGLO [1..9, 1..4] DE tot
+    tz, tg: tot
+    z, t: entero
+
+PROCESO
+    ARR(fac)
+    AVZ(fac, reg)
+
+    PARA z := 1 A 9 HACER
+        PARA t := 1 A 4 HACER
+            m[z, t].uni := 0
+            m[z, t].grav := 0
+            m[z, t].exen := 0
+            m[z, t].iva := 0
+        FIN_PARA
+    FIN_PARA
+
+    MIENTRAS NFDS(fac) HACER
+        z := reg.zona
+        t := reg.tipo
+
+        m[z, t].uni := m[z, t].uni + reg.uni
+        m[z, t].grav := m[z, t].grav + reg.grav
+        m[z, t].exen := m[z, t].exen + reg.exen
+        m[z, t].iva := m[z, t].iva + reg.iva
+
+        AVZ(fac, reg)
+    FIN_MIENTRAS
+
+    tg.uni := 0
+    tg.grav := 0
+    tg.exen := 0
+    tg.iva := 0
+
+    PARA z := 1 A 9 HACER
+        tz.uni := 0
+        tz.grav := 0
+        tz.exen := 0
+        tz.iva := 0
+
+        ESC("ZONA ", z)
+
+        PARA t := 1 A 4 HACER
+            ESC("Tipo ", t, " - Unidades: ", m[z, t].uni, " - Gravado: ", m[z, t].grav," - Exento: ", m[z, t].exen, " - IVA: ", m[z, t].iva)
+            tz.uni := tz.uni + m[z, t].uni
+            tz.grav := tz.grav + m[z, t].grav
+            tz.exen := tz.exen + m[z, t].exen
+            tz.iva := tz.iva + m[z, t].iva
+        FIN_PARA
+
+        ESC("TOTAL ZONA ", z, " - Unidades: ", tz.uni, " - Gravado: ", tz.grav, " - Exento: ", tz.exen, " - IVA: ", tz.iva)
+
+        tg.uni := tg.uni + tz.uni
+        tg.grav := tg.grav + tz.grav
+        tg.exen := tg.exen + tz.exen
+        tg.iva := tg.iva + tz.iva
+    FIN_PARA
+
+    ESC("TOTAL GENERAL", " - Unidades: ", tg.uni, " - Gravado: ", tg.grav, " - Exento: ", tg.exen, " - IVA: ", tg.iva)
+
+    CERRAR(fac)
+FIN_ACCION
