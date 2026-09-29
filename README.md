@@ -7,7 +7,7 @@ el PDF, corresponde a la web.)
 
 - Ejemplo de ejercicio sacado de la guía: "arreglos 3.01"
 - Ejemplo de ejercicio sacado de la web: "actualización secuencial 2.2.1"
-- Ejemplo de ejercicio de 2 números sacado de la web "arreglos con archivos y búsqueda lineal 3.26"
+- Ejemplo de ejercicio de 2 números sacado de la web "arreglos con archivos y búsqueda lineal 3.32"
 
 
 
