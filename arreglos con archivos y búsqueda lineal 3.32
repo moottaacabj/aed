@@ -1,0 +1,173 @@
+ACCION Ejercicio_3_32 ES
+AMBIENTE
+    fecha = registro
+        aa: N(4)
+        mm: 1..12
+        dd: 1..31
+    FIN_REGISTRO
+
+    estacionamiento = registro
+        fecha_est: fecha
+        patente: AN(7)
+        hora_desde: N(2)
+        hora_hasta: N(2)
+        posta: 1..100
+    FIN_REGISTRO
+
+    est: archivo secuencial de estacionamiento
+    reg: estacionamiento
+
+    tarifa: ARREGLO [0..23] DE entero
+    imp_post: ARREGLO [1..100] DE entero
+    cant_dia: ARREGLO [1..31] DE entero
+    cant_dia_post: ARREGLO [1..31, 1..100] DE entero
+    cant_franja: ARREGLO [1..4] DE entero
+
+    h, d, p, f, horas, costo, importe: entero
+    max_imp, post_max: entero
+    max_dia, dia_max: entero
+    max_dp, dia_dp, post_dp: entero
+    max_franja, franja_max: entero
+    max_horas, total: entero
+    pat_max: AN(7)
+    dia_perm, post_perm: entero
+    
+PROCESO
+    ABRIR E/(est)
+    LEER(est, reg)
+    
+    PARA h := 0 A 23 HACER   // preparar la tarifa de cada hora
+        SI h <= 6 ENTONCES
+            tarifa[h] := 9
+        SINO
+            SI h <= 13 ENTONCES
+                tarifa[h] := 14
+            SINO
+                SI h <= 19 ENTONCES
+                    tarifa[h] := 12
+                SINO
+                    tarifa[h] := 6
+                FIN_SI
+            FIN_SI
+        FIN_SI
+    FIN_PARA
+
+    PARA p := 1 A 100 HACER   // inicializar los arreglos del informe
+        imp_post[p] := 0
+    FIN_PARA
+
+    PARA d := 1 A 31 HACER
+        cant_dia[d] := 0
+
+        PARA p := 1 A 100 HACER
+            cant_dia_post[d, p] := 0
+        FIN_PARA
+    FIN_PARA
+
+    PARA f := 1 A 4 HACER
+        cant_franja[f] := 0
+    FIN_PARA
+
+    total := 0
+    max_horas := 0
+
+    MIENTRAS NO FDA(est) HACER  // procesar los estacionamientos
+        total := total + 1
+        d := reg.fecha_est.dia
+        p := reg.posta
+
+        horas := reg.hora_hasta - reg.hora_desde + 1    // horas incluidas, como indica el ejemplo: 5 a 10 son 6 horas
+        costo := tarifa[reg.hora_desde] // para cobrar, tomar la mayor tarifa de los dos extremos
+
+        SI tarifa[reg.hora_hasta] > costo ENTONCES
+            costo := tarifa[reg.hora_hasta]
+        FIN_SI
+
+        importe := horas * costo
+
+        imp_post[p] := imp_post[p] + importe
+        cant_dia[d] := cant_dia[d] + 1
+        cant_dia_post[d, p] := cant_dia_post[d, p] + 1
+
+        SI reg.hora_desde <= 6 ENTONCES // cada estacionamiento se cuenta una vez en cada franja que toca
+            cant_franja[1] := cant_franja[1] + 1
+        FIN_SI
+
+        SI reg.hora_desde <= 13 Y reg.hora_hasta >= 7 ENTONCES
+            cant_franja[2] := cant_franja[2] + 1
+        FIN_SI
+
+        SI reg.hora_desde <= 19 Y reg.hora_hasta >= 14 ENTONCES
+            cant_franja[3] := cant_franja[3] + 1
+        FIN_SI
+
+        SI reg.hora_hasta >= 20 ENTONCES
+            cant_franja[4] := cant_franja[4] + 1
+        FIN_SI
+
+        SI horas > max_horas ENTONCES   // máxima permanencia de un auto
+            max_horas := horas
+            pat_max := reg.patente
+            dia_perm := d
+            post_perm := p
+        FIN_SI
+
+        LEER(est, reg)
+    FIN_MIENTRAS
+
+    SI total = 0 ENTONCES
+        ESC("No se registraron estacionamientos")
+    SINO
+        max_imp := imp_post[1]  // posta con mayor importe
+        post_max := 1
+
+        PARA p := 2 A 100 HACER
+            SI imp_post[p] > max_imp ENTONCES
+                max_imp := imp_post[p]
+                post_max := p
+            FIN_SI
+        FIN_PARA
+
+        max_dia := cant_dia[1] // día con más estacionamientos
+        dia_max := 1
+
+        PARA d := 2 A 31 HACER
+            SI cant_dia[d] > max_dia ENTONCES
+                max_dia := cant_dia[d]
+                dia_max := d
+            FIN_SI
+        FIN_PARA
+
+        max_dp := cant_dia_post[1, 1] // combinación de día y posta con más estacionamientos
+        dia_dp := 1
+        post_dp := 1
+
+        PARA d := 1 A 31 HACER
+            PARA p := 1 A 100 HACER
+                SI cant_dia_post[d, p] > max_dp ENTONCES
+                    max_dp := cant_dia_post[d, p]
+                    dia_dp := d
+                    post_dp := p
+                FIN_SI
+            FIN_PARA
+        FIN_PARA
+
+        max_franja := cant_franja[1]  // franja con más estacionamientos
+        franja_max := 1
+
+        PARA f := 2 A 4 HACER
+            SI cant_franja[f] > max_franja ENTONCES
+                max_franja := cant_franja[f]
+                franja_max := f
+            FIN_SI
+        FIN_PARA
+
+        ESC("Posta con mayor importe: ", post_max, ". Importe: $", max_imp)
+        ESC("Día con más estacionamientos: ", dia_max, ". Cantidad: ", max_dia)
+        ESC("Mayor cantidad en un día y posta: día ", dia_dp, ", posta ", post_dp, ". Cantidad: ", max_dp)
+        ESC("Franja con más estacionamientos: ", franja_max, ". Cantidad: ", max_franja)
+        ESC("Máxima permanencia: ", max_horas, " horas. Patente: ", pat_max, ". Día: ", dia_perm, ". Posta: ", post_perm)
+        
+        CERRAR(est)
+    FIN_SI
+FIN_ACCION
