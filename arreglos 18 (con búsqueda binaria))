@@ -1,0 +1,164 @@
+ACCION Agenda ES
+AMBIENTE
+    persona = registro
+        nom: AN (50)
+        dir: AN (60)
+        tel: N (20)
+    FIN_REGISTRO
+
+    a: ARREGLO [1..50] DE persona
+    aux: persona
+    nom: alfanumerico
+    n, i, pos, otra: entero
+    op: 0..4
+
+    PROCEDIMIENTO menu ES
+    PROCESO
+        ESC("1. Consultar")
+        ESC("2. Modificar")
+        ESC("3. Eliminar")
+        ESC("4. Agregar")
+        ESC("0. Finalizar")
+        LEER(op)
+    FIN_PROCEDIMIENTO
+
+    FUNCION buscar(x: alfanumerico): entero
+    AMBIENTE
+        iz, de, cen, p: entero
+    PROCESO
+        iz := 1
+        de := n
+        p := 0
+        MIENTRAS (iz <= de) Y (p = 0) HACER
+            cen := (iz + de) DIV 2
+            SI a[cen].nom = x ENTONCES
+                p := cen
+            SINO
+                SI x < a[cen].nom ENTONCES
+                    de := cen - 1
+                SINO
+                    iz := cen + 1
+                FIN_SI
+            FIN_SI
+        FIN_MIENTRAS
+        buscar := p
+    FIN_FUNCION
+
+    PROCEDIMIENTO insertar(p: persona) ES
+    AMBIENTE
+        j: entero
+        seguir: logico
+    PROCESO
+        j := n
+        seguir := VERDADERO
+        MIENTRAS (j > 0) Y seguir HACER
+            SI p.nom < a[j].nom ENTONCES
+                a[j+1] := a[j]
+                j := j - 1
+            SINO
+                seguir := FALSO
+            FIN_SI
+        FIN_MIENTRAS
+        a[j+1] := p
+        n := n + 1
+    FIN_PROCEDIMIENTO
+
+    PROCEDIMIENTO eliminar(p: entero) ES
+    AMBIENTE
+        j: entero
+    PROCESO
+        PARA j := p A n-1 HACER
+            a[j] := a[j+1]
+        FIN_PARA
+        n := n - 1
+    FIN_PROCEDIMIENTO
+
+PROCESO
+    ESC("Ingrese la cantidad inicial de personas, entre 0 y 50:")
+    LEER(n)
+    
+    MIENTRAS (n < 0) O (n > 50) HACER
+        ESC("Ingrese una cantidad entre 0 y 50:")
+        LEER(n)
+    FIN_MIENTRAS
+
+    PARA i := 1 A n HACER // cargar las personas en orden alfabético
+        ESC("Ingrese nombre, dirección y teléfono:")
+        LEER(a[i].nom, a[i].dir, a[i].tel)
+    FIN_PARA
+
+    REPETIR
+        menu
+        
+        SEGUN op HACER
+            =1:
+                ESC("Ingrese el nombre:")
+                LEER(nom)
+                pos := buscar(nom)
+
+                SI pos <> 0 ENTONCES
+                    ESC(a[pos].nom, a[pos].dir, a[pos].tel)
+                SINO
+                    ESC("Persona no encontrada")
+                FIN_SI
+
+            =2:
+                ESC("Ingrese el nombre de la persona:")
+                LEER(nom)
+                pos := buscar(nom)
+
+                SI pos <> 0 ENTONCES
+                    ESC("Ingrese nombre, dirección y teléfono nuevos:")
+                    LEER(aux.nom, aux.dir, aux.tel)
+                    otra := buscar(aux.nom)
+                    SI (otra = 0) O (otra = pos) ENTONCES
+                        eliminar(pos)
+                        insertar(aux)
+                        ESC("Datos modificados")
+                    SINO
+                        ESC("Ya existe otra persona con ese nombre")
+                    FIN_SI
+                SINO
+                    ESC("Persona no encontrada")
+                FIN_SI
+
+            =3:
+                ESC("Ingrese el nombre:")
+                LEER(nom)
+                pos := buscar(nom)
+
+                SI pos <> 0 ENTONCES
+                    eliminar(pos)
+                    ESC("Persona eliminada")
+                SINO
+                    ESC("Persona no encontrada")
+                FIN_SI
+
+            =4:
+                SI n < 50 ENTONCES
+                    ESC("Ingrese nombre, dirección y teléfono:")
+                    LEER(aux.nom, aux.dir, aux.tel)
+                    pos := buscar(aux.nom)
+
+                    SI pos = 0 ENTONCES
+                        insertar(aux)
+                        ESC("Persona agregada")
+                    SINO
+                        ESC("Ya existe una persona con ese nombre")
+                    FIN_SI
+                SINO
+                    ESC("Agenda completa")
+                FIN_SI
+
+            =0:
+                ESC("Fin de las operaciones")
+        FIN_SEGUN
+    HASTA QUE op = 0
+
+    ESC("Agenda final:")
+    
+    PARA i := 1 A n HACER
+        ESC(a[i].nom, a[i].dir, a[i].tel)
+    FIN_PARA
+
+FIN_ACCION
