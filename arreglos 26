@@ -33,6 +33,8 @@ AMBIENTE
     i, j, zona_num: entero
 
 PROCESO
+		ABRIR E/(facturas)
+
     total_general_consumo := 0
     total_general_importe := 0
 
@@ -56,7 +58,6 @@ PROCESO
         total_zona_importe[j] := 0
     FIN_PARA
 
-    ABRIR E/(facturas)
     LEER(facturas, reg)
 
     MIENTRAS NFDA(facturas) HACER
@@ -72,8 +73,6 @@ PROCESO
 
         LEER(facturas, reg)
     FIN_MIENTRAS
-
-    CERRAR(facturas)
 
     PARA i := 1 HASTA 12 HACER
         PARA j := 1 HASTA 4 HACER
@@ -101,4 +100,5 @@ PROCESO
 
     ESC("Total general de consumo: ", total_general_consumo)
     ESC("Total general facturado: ", total_general_importe)
+		CERRAR(facturas)
 FIN_ACCION
